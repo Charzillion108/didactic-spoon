@@ -11,7 +11,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isSprinting = false;
     private float xRotation = 0f;
 
-    [Header("Movement Speeds")]
+    [Header("Speeds")]
     [SerializeField] private float walkSpeed = 5f;
     [SerializeField] private float sprintSpeed = 10f;
 
@@ -26,14 +26,13 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
-        
-        // Lock the cursor for the camera look
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    // --- INPUT SYSTEM EVENTS ---
+    // --- INPUT EVENTS (Link these in the Player Input component) ---
     public void OnMove(InputAction.CallbackContext context) => inputVector = context.ReadValue<Vector2>();
     public void OnLook(InputAction.CallbackContext context) => lookInput = context.ReadValue<Vector2>();
+    
     public void OnJump(InputAction.CallbackContext context)
     {
         if (context.performed && controller.isGrounded)
@@ -41,12 +40,14 @@ public class PlayerMovement : MonoBehaviour
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
     }
+
     public void OnSprint(InputAction.CallbackContext context)
     {
         if (context.started || context.performed) isSprinting = true;
         else if (context.canceled) isSprinting = false;
     }
 
+    // --- THE ONLY UPDATE FUNCTION ---
     private void Update()
     {
         HandleLook();
@@ -56,6 +57,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleLook()
     {
+        if (cameraTransform == null) return;
+
         float mouseX = lookInput.x * mouseSensitivity * Time.deltaTime;
         float mouseY = lookInput.y * mouseSensitivity * Time.deltaTime;
 
@@ -82,7 +85,7 @@ public class PlayerMovement : MonoBehaviour
 
         velocity.y += gravity * Time.deltaTime;
 
-        // Safety catch to prevent the NaN error
+        // Safety against NaN errors
         if (float.IsNaN(velocity.y)) velocity.y = 0;
 
         controller.Move(velocity * Time.deltaTime);
