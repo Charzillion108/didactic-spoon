@@ -48,7 +48,12 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        
+        // Lock cursor for single-player warehouse exploration
         Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        if (mainCamera == null) mainCamera = GetComponentInChildren<Camera>();
         if (mainCamera != null) mainCamera.fieldOfView = baseFOV;
     }
 
@@ -107,6 +112,7 @@ public class PlayerMovement : MonoBehaviour
     private void HandleLook()
     {
         if (cameraTransform == null) return;
+        
         float mouseX = lookInput.x * mouseSensitivity * Time.deltaTime;
         float mouseY = lookInput.y * mouseSensitivity * Time.deltaTime;
 
@@ -159,4 +165,4 @@ public class PlayerMovement : MonoBehaviour
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
     }
-} // <--- This is the bracket that closes the whole Script!
+}
